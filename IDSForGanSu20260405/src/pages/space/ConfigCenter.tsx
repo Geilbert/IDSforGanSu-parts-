@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Layout, Menu, Button, Table, Space, 
-  Typography, Card, Input, Tag,
+  Typography, Card, Input, Tag, InputNumber,
   Modal, Form, TreeSelect, message, Switch, Badge, Select,
   Collapse, Drawer, Descriptions, Divider
 } from 'antd';
@@ -9,7 +9,7 @@ import {
   Plus, Search, Edit, Trash2, 
   Layers, Tag as TagIcon, BarChart, 
   Ruler, FileCode, AlertCircle,
-  RefreshCw, Info, CheckCircle2, XCircle,
+  Info, CheckCircle2, XCircle,
   ClipboardList, Calendar as CalendarIcon, FileText as FileTextIcon
 } from 'lucide-react';
 
@@ -32,6 +32,12 @@ interface SpaceType extends BaseItem {
   children?: SpaceType[];
 }
 
+interface DataClassification extends BaseItem {
+  parentId?: string;
+  spaceName: string;
+  children?: DataClassification[];
+}
+
 interface DataGrading extends BaseItem {
   securityLevel: '公开' | '内部' | '秘密' | '绝密';
   applicableDomains: string[];
@@ -40,10 +46,13 @@ interface DataGrading extends BaseItem {
 }
 
 interface DimensionStandard extends BaseItem {
-  dimensionType: '时间维度' | '地理维度' | '业务维度' | '对象维度';
+  dimensionType: 'csv' | 'json' | 'docx';
+  fileSizeMb: number;
   applicableScenarios: string;
-  dimensionDefinition: string; // JSON string
+  dimensionDefinition?: string; // JSON string
   status: 'enabled' | 'deprecated';
+  creator: string;
+  createTime: string;
   lastUpdate: string;
 }
 
@@ -88,25 +97,25 @@ const ConfigCenter: React.FC = () => {
     { key: 'st_3', name: '公开数据市场', code: 'PUBLIC_MARKET', description: '对外开放的数据产品发布与交易平台', status: 'enabled', createTime: '2023-04-01' },
   ]);
 
-  const [dataClassifications, setDataClassifications] = useState<BaseItem[]>([
+  const [dataClassifications, setDataClassifications] = useState<DataClassification[]>([
     {
-      key: '1', name: '业务数据', code: 'BIZ_DATA', description: '核心业务流程产生的数据',
+      key: '1', name: '业务数据', code: 'BIZ_DATA', description: '核心业务流程产生的数据', spaceName: '协作空间',
       children: [
         {
-          key: '1-1', name: '财务数据', code: 'FIN_DATA', description: '涉及收支、账单、预算等信息',
+          key: '1-1', name: '财务数据', code: 'FIN_DATA', description: '涉及收支、账单、预算等信息', spaceName: '协作空间',
           children: [
-            { key: '1-1-1', name: '收入流水', code: 'INC_FLOW', description: '每日收入明细' },
-            { key: '1-1-2', name: '支出明细', code: 'EXP_FLOW', description: '运营支出记录' },
+            { key: '1-1-1', name: '收入流水', code: 'INC_FLOW', description: '每日收入明细', spaceName: '协作空间' },
+            { key: '1-1-2', name: '支出明细', code: 'EXP_FLOW', description: '运营支出记录', spaceName: '协作空间' },
           ]
         },
-        { key: '1-2', name: '营销数据', code: 'MKT_DATA', description: '活动转化、获客成本等数据' },
+        { key: '1-2', name: '营销数据', code: 'MKT_DATA', description: '活动转化、获客成本等数据', spaceName: '公开数据市场' },
       ],
     },
     {
-      key: '2', name: '管理数据', code: 'MGMT_DATA', description: '内部行政与人力资源数据',
+      key: '2', name: '管理数据', code: 'MGMT_DATA', description: '内部行政与人力资源数据', spaceName: '私有空间',
       children: [
-        { key: '2-1', name: '人力资源', code: 'HR_DATA', description: '员工档案、考勤数据' },
-        { key: '2-2', name: '行政资产', code: 'ASSET_DATA', description: '办公用品与固定资产' },
+        { key: '2-1', name: '人力资源', code: 'HR_DATA', description: '员工档案、考勤数据', spaceName: '私有空间' },
+        { key: '2-2', name: '行政资产', code: 'ASSET_DATA', description: '办公用品与固定资产', spaceName: '私有空间' },
       ],
     },
   ]);
@@ -118,9 +127,9 @@ const ConfigCenter: React.FC = () => {
   ]);
 
   const [dimensionStandards, setDimensionStandards] = useState<DimensionStandard[]>([
-    { key: 'ds_1', name: '时间维度标准', code: 'DIM_TIME', dimensionType: '时间维度', applicableScenarios: '所有业务报表', dimensionDefinition: '{"levels": ["年", "季度", "月", "日"]}', status: 'enabled', lastUpdate: '2024-01-01', description: '用于时间序列数据分析的维度标准' },
-    { key: 'ds_2', name: '地理维度标准', code: 'DIM_GEO', dimensionType: '地理维度', applicableScenarios: '区域销售分析', dimensionDefinition: '{"levels": ["国家", "省份", "城市"]}', status: 'enabled', lastUpdate: '2024-02-15', description: '用于地理位置数据分析的维度标准' },
-    { key: 'ds_3', name: '用户维度标准', code: 'DIM_USER', dimensionType: '对象维度', applicableScenarios: '用户行为分析', dimensionDefinition: '{"id": "user_id", "attributes": ["gender", "age_group"]}', status: 'enabled', lastUpdate: '2024-03-01', description: '用于用户行为和属性分析的维度标准' },
+    { key: 'ds_1', name: 'CSV 维度标准', code: 'DIM_CSV', dimensionType: 'csv', fileSizeMb: 100, applicableScenarios: '批量数据导入分析', dimensionDefinition: '{"delimiter": ",", "hasHeader": true}', status: 'enabled', creator: '系统管理员', createTime: '2024-01-01 09:30:00', lastUpdate: '2024-01-01 09:30:00', description: '用于 CSV 结构化文件的维度标准' },
+    { key: 'ds_2', name: 'JSON 维度标准', code: 'DIM_JSON', dimensionType: 'json', fileSizeMb: 50, applicableScenarios: '半结构化数据处理', dimensionDefinition: '{"path": "$.items[*]", "fields": ["id", "name"]}', status: 'enabled', creator: '数据治理专员', createTime: '2024-02-15 14:10:00', lastUpdate: '2024-02-15 14:10:00', description: '用于 JSON 数据结构解析的维度标准' },
+    { key: 'ds_3', name: 'DOCX 维度标准', code: 'DIM_DOCX', dimensionType: 'docx', fileSizeMb: 20, applicableScenarios: '文档内容结构提取', dimensionDefinition: '{"sections": ["标题", "正文", "附件"]}', status: 'enabled', creator: '空间管理员', createTime: '2024-03-01 11:00:00', lastUpdate: '2024-03-01 11:00:00', description: '用于 DOCX 文档内容分析的维度标准' },
   ]);
 
   const [qualityRuleTemplates, setQualityRuleTemplates] = useState<QualityRuleTemplate[]>([
@@ -237,12 +246,26 @@ const ConfigCenter: React.FC = () => {
               key: `ds_${Date.now()}`,
               code: values.name.toUpperCase().replace(/\s+/g, '_'),
               status: 'enabled',
-              lastUpdate: new Date().toLocaleDateString(),
+              creator: '当前用户',
+              createTime: new Date().toLocaleString(),
+              lastUpdate: new Date().toLocaleString(),
             };
             setDimensionStandards(prev => [newItem, ...prev]);
           } else {
             setDimensionStandards(prev => prev.map(item => 
               item.key === editingItem.key ? { ...item, ...values, lastUpdate: new Date().toLocaleDateString() } : item
+            ));
+          }
+        } else if (selectedKey === 'data-classification') {
+          if (modalType === 'add') {
+            const newItem: DataClassification = {
+              ...values,
+              key: `dc_${Date.now()}`,
+            };
+            setDataClassifications(prev => [newItem, ...prev]);
+          } else {
+            setDataClassifications(prev => prev.map(item =>
+              item.key === editingItem.key ? { ...item, ...values } : item
             ));
           }
         }
@@ -431,11 +454,12 @@ const ConfigCenter: React.FC = () => {
       case 'data-classification':
         const dataClassificationColumns = [
           { title: '分类名称', dataIndex: 'name', key: 'name' },
+          { title: '应用空间', dataIndex: 'spaceName', key: 'spaceName' },
           { title: '分类编码', dataIndex: 'code', key: 'code', render: (code: string) => <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">{code}</code> },
           { title: '描述', dataIndex: 'description', key: 'description', render: (desc: string) => <Text type="secondary" className="text-sm">{desc}</Text> },
           {
             title: '操作', key: 'action', width: 150,
-            render: (_: any, record: BaseItem) => (
+            render: (_: any, record: DataClassification) => (
               <Space size="middle">
                 <Button type="link" size="small" icon={<Edit size={14} />} onClick={() => handleEdit(record, selectedKey)}>编辑</Button>
                 <Button type="link" danger size="small" icon={<Trash2 size={14} />} onClick={() => Modal.confirm({
@@ -547,10 +571,9 @@ const ConfigCenter: React.FC = () => {
           { title: '标准名称', dataIndex: 'name', key: 'name' },
           { title: '维度类型', dataIndex: 'dimensionType', key: 'dimensionType', render: (type: string) => {
             let color = 'default';
-            if (type === '时间维度') color = 'blue';
-            else if (type === '地理维度') color = 'green';
-            else if (type === '业务维度') color = 'purple';
-            else if (type === '对象维度') color = 'cyan';
+            if (type === 'csv') color = 'blue';
+            else if (type === 'json') color = 'green';
+            else if (type === 'docx') color = 'purple';
             return <Tag color={color}>{type}</Tag>;
           }},
           { title: '状态', dataIndex: 'status', key: 'status', render: (status: 'enabled' | 'deprecated') => (
@@ -588,7 +611,6 @@ const ConfigCenter: React.FC = () => {
                 />
               </div>
               <Space>
-                <Button icon={<RefreshCw size={16} />} className="flex items-center gap-1">刷新缓存</Button>
                 <Button type="primary" icon={<Plus size={16} />} className="flex items-center gap-1" onClick={() => handleAdd(selectedKey)}>
                   新增维度标准
                 </Button>
@@ -818,6 +840,15 @@ const ConfigCenter: React.FC = () => {
               <Form.Item name="name" label="分类名称" rules={[{ required: true, message: '请输入分类名称' }]}>
                 <Input placeholder="输入分类名称" />
               </Form.Item>
+              <Form.Item name="spaceName" label="空间名称" rules={[{ required: true, message: '请选择空间名称' }]}>
+                <Select placeholder="请选择空间名称">
+                  {spaceTypes.map(spaceType => (
+                    <Select.Option key={spaceType.key} value={spaceType.name}>
+                      {spaceType.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
               <Form.Item name="parentId" label="父级分类">
                 <TreeSelect
                   placeholder="选择父级分类（不选则为根节点）"
@@ -879,17 +910,23 @@ const ConfigCenter: React.FC = () => {
               </Form.Item>
               <Form.Item name="dimensionType" label="维度类型" rules={[{ required: true, message: '请选择维度类型' }]}>
                 <Select placeholder="选择维度类型">
-                  <Select.Option value="时间维度">时间维度</Select.Option>
-                  <Select.Option value="地理维度">地理维度</Select.Option>
-                  <Select.Option value="业务维度">业务维度</Select.Option>
-                  <Select.Option value="对象维度">对象维度</Select.Option>
+                  <Select.Option value="csv">csv</Select.Option>
+                  <Select.Option value="json">json</Select.Option>
+                  <Select.Option value="docx">docx</Select.Option>
                 </Select>
+              </Form.Item>
+              <Form.Item
+                name="fileSizeMb"
+                label="文件大小（MB）"
+                rules={[
+                  { required: true, message: '请输入文件大小' },
+                  { type: 'number', min: 1, message: '文件大小需大于 0' }
+                ]}
+              >
+                <InputNumber min={1} precision={0} placeholder="请输入文件大小（MB）" style={{ width: '100%' }} />
               </Form.Item>
               <Form.Item name="applicableScenarios" label="适用场景">
                 <Input.TextArea rows={3} placeholder="描述此维度标准的适用场景" />
-              </Form.Item>
-              <Form.Item name="dimensionDefinition" label="维度定义 (JSON)" rules={[{ required: true, message: '请输入维度定义' }]}>
-                <Input.TextArea rows={5} placeholder='例如: {"levels": ["国家", "省份", "城市"]}' />
               </Form.Item>
             </>
           )}
@@ -1249,17 +1286,15 @@ const ConfigCenter: React.FC = () => {
             <Descriptions column={1} bordered size="small">
               <Descriptions.Item label="标准名称">{editingItem.name}</Descriptions.Item>
               <Descriptions.Item label="维度类型"><Tag>{editingItem.dimensionType}</Tag></Descriptions.Item>
+              <Descriptions.Item label="文件大小">{editingItem.fileSizeMb} MB</Descriptions.Item>
               <Descriptions.Item label="适用场景">{editingItem.applicableScenarios}</Descriptions.Item>
-              <Descriptions.Item label="状态"><Badge status={editingItem.status === 'enabled' ? 'success' : 'error'} text={editingItem.status === 'enabled' ? '生效' : '废止'} /></Descriptions.Item>
-              <Descriptions.Item label="最后更新">{editingItem.lastUpdate}</Descriptions.Item>
+              <Descriptions.Item label="创建人">{editingItem.creator}</Descriptions.Item>
+              <Descriptions.Item label="创建时间">{editingItem.createTime}</Descriptions.Item>
+              <Descriptions.Item label="状态">
+                <Badge status={editingItem.status === 'enabled' ? 'success' : 'error'} text={editingItem.status === 'enabled' ? '生效' : '废止'} />
+              </Descriptions.Item>
+              <Descriptions.Item label="最近更新时间">{editingItem.lastUpdate}</Descriptions.Item>
             </Descriptions>
-            <Divider />
-            <div>
-              <Title level={5}>维度定义 (JSON)</Title>
-              <pre className="bg-gray-800 text-green-400 p-4 rounded-md overflow-auto text-sm">
-                {editingItem.dimensionDefinition ? JSON.stringify(JSON.parse(editingItem.dimensionDefinition), null, 2) : ''}
-              </pre>
-            </div>
           </div>
         )}
       </Modal>

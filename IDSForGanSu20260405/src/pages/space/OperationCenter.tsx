@@ -3,14 +3,14 @@ import {
   Tabs, Card, Statistic, Row, Col, Typography, 
   Timeline, Button, Descriptions, Space, Tag, Table, 
   Input, Select, Modal, Form, Switch, Divider, Badge,
-  Drawer, Checkbox, message, Tooltip, DatePicker
+  Drawer, Checkbox, message, Tooltip
 } from 'antd';
 import { 
   Activity, Link as LinkIcon, Database, ShieldCheck, 
   Users, Settings, Search, Filter, Plus, 
   PlayCircle, Edit, AlertCircle, CheckCircle2,
   User as UserIcon, FileText, HardDrive, Share2,
-  Eye, Key, Shield, Calendar as CalendarIcon, FileText as FileTextIcon,
+  Eye, Key, Shield, FileText as FileTextIcon,
   Info
 } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -24,7 +24,6 @@ interface ContentPublishingTask {
   contentType: '数据产品目录' | '空间信息摘要' | '其他';
   associatedDataProducts?: string[]; // Optional, only for '数据产品目录'
   content: string; // Rich text, using string for now
-  plannedPublishTime: string;
   description: string;
   status: '待审核' | '已通过' | '已驳回' | '已撤回';
   lastUpdate: string;
@@ -68,7 +67,6 @@ const OperationCenter: React.FC = () => {
       title: '用户行为分析报告',
       contentType: '空间信息摘要',
       content: '本报告详细分析了用户在过去一个月的行为模式和偏好...',
-      plannedPublishTime: '2024-04-15 10:00:00',
       description: '向运营团队发布的用户行为分析报告',
       status: '已通过',
       lastUpdate: '2024-04-10 11:30:00',
@@ -79,7 +77,6 @@ const OperationCenter: React.FC = () => {
       contentType: '数据产品目录',
       associatedDataProducts: ['product_api_v2', 'user_profile_v3'],
       content: '新产品上线所需的数据接口清单及详细说明。',
-      plannedPublishTime: '2024-04-20 14:00:00',
       description: '为新产品提供数据支持',
       status: '待审核',
       lastUpdate: '2024-04-09 16:00:00',
@@ -89,7 +86,6 @@ const OperationCenter: React.FC = () => {
       title: '季度财务报表解读',
       contentType: '空间信息摘要',
       content: '对最新季度财务报表进行深入解读，分析营收增长点和成本控制情况。',
-      plannedPublishTime: '2024-04-25 09:00:00',
       description: '面向管理层的季度财务分析',
       status: '已驳回',
       lastUpdate: '2024-04-08 10:00:00',
@@ -1035,9 +1031,6 @@ const OperationCenter: React.FC = () => {
           <Form.Item name="content" label="发布内容">
             <Input.TextArea rows={6} placeholder="请输入发布内容（富文本编辑器待集成）" />
           </Form.Item>
-          <Form.Item name="plannedPublishTime" label="计划发布时间" rules={[{ required: true, message: '请选择计划发布时间' }]}>
-            <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" style={{ width: '100%' }} />
-          </Form.Item>
           <Form.Item name="description" label="发布说明">
             <Input.TextArea rows={3} placeholder="请输入发布说明" />
           </Form.Item>
@@ -1082,12 +1075,6 @@ const OperationCenter: React.FC = () => {
                   </Space>
                 </Descriptions.Item>
               )}
-              <Descriptions.Item label="计划发布时间">
-                <Space>
-                  <CalendarIcon size={14} />
-                  {editingPublishingTask.plannedPublishTime}
-                </Space>
-              </Descriptions.Item>
               <Descriptions.Item label="状态">
                 <Badge 
                   status={
