@@ -16,7 +16,10 @@ interface PolicyTemplate {
   name: string;
   status: '启用' | '禁用';
   orderRefCount: number;
+  createdAt: string;
+  createdBy: string;
   updatedAt: string;
+  updatedBy: string;
   summaryA: string;
   summaryB: string;
   description: string;
@@ -26,52 +29,77 @@ const lowCategories: LowCategory[] = ['加密策略', '传输服务管控', '策
 const highCategories: HighCategory[] = ['可信环境构建', '数据预处理', '数据质量规则', '容器隔离控制', '数据销毁策略'];
 
 const initialTemplates: PolicyTemplate[] = [
-  { key: 'enc_1', category: '加密策略', name: '全局AES-256加密策略', status: '启用', orderRefCount: 8, updatedAt: '2026-04-15 10:30', summaryA: 'AES-256 整体加密', summaryB: '', description: '用于需要后续解密的场景：对符合条件的所有字段值进行AES-256加密。' },
-  { key: 'enc_2', category: '加密策略', name: '客户隐私字段通用掩码策略', status: '启用', orderRefCount: 5, updatedAt: '2026-04-14 15:20', summaryA: '通用掩码（手机/证件号规则）', summaryB: '', description: '系统自动识别类似手机号/证件号字段，并应用标准掩码（如 13812345678 → 138****5678）。' },
+  { key: 'enc_1', category: '加密策略', name: '全局AES-256加密策略', status: '启用', orderRefCount: 8, createdAt: '2026-04-12 09:20', createdBy: '系统管理员', updatedAt: '2026-04-15 10:30', updatedBy: '系统管理员', summaryA: 'AES-256 整体加密', summaryB: '结构化数据', description: '用于需要后续解密的场景：对符合条件的所有字段值进行AES-256加密。' },
+  { key: 'enc_2', category: '加密策略', name: '客户隐私字段通用掩码策略', status: '启用', orderRefCount: 5, createdAt: '2026-04-11 14:10', createdBy: '系统管理员', updatedAt: '2026-04-14 15:20', updatedBy: '系统管理员', summaryA: '通用掩码（手机/证件号规则）', summaryB: '文件', description: '系统自动识别类似手机号/证件号字段，并应用标准掩码（如 13812345678 → 138****5678）。' },
   {
     key: 'ctl_1',
     category: '传输服务管控',
     name: '高优先级实时传输策略',
     status: '启用',
     orderRefCount: 6,
+    createdAt: '2026-04-10 09:00',
+    createdBy: '系统管理员',
     updatedAt: '2026-04-15 09:10',
-    summaryA: '立即执行',
+    updatedBy: '系统管理员',
+    summaryA: '高',
     summaryB: '传输内存:8GB; 传输带宽:100Mbps; 重试次数:3次; 超时:30秒; 监控告警:开启',
     description: '适用于实时订单同步场景',
   },
-  { key: 'gw_1', category: '策略网关', name: '用户信息SFTP安全传输网关', status: '启用', orderRefCount: 10, updatedAt: '2026-04-13 17:40', summaryA: 'SFTP', summaryB: 'AES-256-GCM基础加密包 + 高优先级实时传输策略', description: '用于用户信息文件类低密交付' },
-  { key: 'tee_1', category: '可信环境构建', name: 'SGX-4C8G计算环境', status: '启用', orderRefCount: 4, updatedAt: '2026-04-12 16:40', summaryA: 'Intel SGX', summaryB: '4C/8G', description: '中密计算标准环境模板' },
-  { key: 'pre_1', category: '数据预处理', name: '通用手机号掩码规则', status: '启用', orderRefCount: 7, updatedAt: '2026-04-15 08:45', summaryA: '脱敏', summaryB: 'SQL模板', description: '对字段{field}保留前三后四' },
-  { key: 'quality_1', category: '数据质量规则', name: '字段非空率检查', status: '启用', orderRefCount: 6, updatedAt: '2026-04-15 08:35', summaryA: '完整性', summaryB: '阈值参数化', description: '检查字段{field}非空率 >= {threshold}%' },
-  { key: 'container_1', category: '容器隔离控制', name: '强隔离计算容器', status: '禁用', orderRefCount: 0, updatedAt: '2026-04-10 13:20', summaryA: '8C/16G', summaryB: '禁止所有出入站', description: '强隔离中密容器模板' },
-  { key: 'destroy_1', category: '数据销毁策略', name: '标准30天自动清理', status: '启用', orderRefCount: 5, updatedAt: '2026-04-11 11:30', summaryA: '时间触发', summaryB: '高强度擦除3次覆写', description: '任务完成后留存30天并自动销毁' },
+  { key: 'gw_1', category: '策略网关', name: '用户信息安全交付策略', status: '启用', orderRefCount: 10, createdAt: '2026-04-09 10:20', createdBy: '系统管理员', updatedAt: '2026-04-13 17:40', updatedBy: '系统管理员', summaryA: 'app_20260409102001', summaryB: '{"timeoutMs":30000,"signMethod":"hmac-sha256"}', description: '用于用户信息类低密交付，配合实时传输管控策略。' },
+  { key: 'gw_2', category: '策略网关', name: '营销素材文件交付策略', status: '启用', orderRefCount: 4, createdAt: '2026-04-09 11:30', createdBy: '系统管理员', updatedAt: '2026-04-14 11:25', updatedBy: '系统管理员', summaryA: 'app_20260409113001', summaryB: '{"maxPayloadMb":100,"retryIntervalSec":10}', description: '用于营销素材文件交付，支持按目录权限控制。' },
+  { key: 'tee_1', category: '可信环境构建', name: 'SGX-4C8G计算环境', status: '启用', orderRefCount: 4, createdAt: '2026-04-08 15:40', createdBy: '系统管理员', updatedAt: '2026-04-12 16:40', updatedBy: '系统管理员', summaryA: '4', summaryB: '8', description: '中密计算标准环境模板' },
+  { key: 'pre_1', category: '数据预处理', name: '通用手机号掩码规则', status: '启用', orderRefCount: 7, createdAt: '2026-04-10 09:25', createdBy: '系统管理员', updatedAt: '2026-04-15 08:45', updatedBy: '系统管理员', summaryA: '脱敏', summaryB: 'SQL模板', description: '对字段{field}保留前三后四' },
+  { key: 'quality_1', category: '数据质量规则', name: '字段非空率检查', status: '启用', orderRefCount: 6, createdAt: '2026-04-10 10:10', createdBy: '系统管理员', updatedAt: '2026-04-15 08:35', updatedBy: '系统管理员', summaryA: '完整性', summaryB: '阈值参数化', description: '检查字段{field}非空率 >= {threshold}%' },
+  { key: 'container_1', category: '容器隔离控制', name: '强隔离计算容器', status: '禁用', orderRefCount: 0, createdAt: '2026-04-07 17:20', createdBy: '系统管理员', updatedAt: '2026-04-10 13:20', updatedBy: '系统管理员', summaryA: '单任务隔离', summaryB: '', description: '强隔离中密容器模板' },
+  { key: 'destroy_1', category: '数据销毁策略', name: '标准30天自动清理', status: '启用', orderRefCount: 5, createdAt: '2026-04-08 11:10', createdBy: '系统管理员', updatedAt: '2026-04-11 11:30', updatedBy: '系统管理员', summaryA: '自动销毁', summaryB: '30天', description: '任务完成后留存30天并自动销毁' },
 ];
 
 const defaultTransportConfig = {
-  transferMemory: 8,
-  transferBandwidth: 100,
   retryCount: 3,
-  retryTimeoutSec: 30,
-  monitorAlertEnabled: true,
 };
+
+function generateAppKey() {
+  const seed = `${Date.now()}${Math.floor(Math.random() * 100000)}`;
+  return `app_${seed}`;
+}
 
 function parseTransportConfig(summaryB: string) {
   const fallback = { ...defaultTransportConfig };
   const text = String(summaryB || '');
   if (!text.trim()) return fallback;
 
-  const mem = text.match(/内存[:=]?\s*(\d+)\s*GB/i);
-  const bw = text.match(/带宽[:=]?\s*(\d+)\s*Mbps/i);
   const retry = text.match(/重试次数[:=]?\s*(\d+)\s*次/i);
-  const timeout = text.match(/超时[:=]?\s*(\d+)\s*秒/i);
-  const monitor = text.match(/监控告警[:=]?\s*(开启|关闭)/i);
+  const pureNumber = text.match(/^\s*(\d+)\s*$/);
 
   return {
-    transferMemory: mem ? Number(mem[1]) : fallback.transferMemory,
-    transferBandwidth: bw ? Number(bw[1]) : fallback.transferBandwidth,
-    retryCount: retry ? Number(retry[1]) : fallback.retryCount,
-    retryTimeoutSec: timeout ? Number(timeout[1]) : fallback.retryTimeoutSec,
-    monitorAlertEnabled: monitor ? String(monitor[1]) === '开启' : fallback.monitorAlertEnabled,
+    retryCount: retry ? Number(retry[1]) : pureNumber ? Number(pureNumber[1]) : fallback.retryCount,
+  };
+}
+
+function getTransportPriority(summaryA: string) {
+  const value = String(summaryA || '').trim();
+  if (value === '低' || value === '中' || value === '高') return value;
+  return '中';
+}
+
+function parseTrustedEnvResources(summaryA: string, summaryB: string) {
+  const cpuFromA = String(summaryA || '').match(/^\s*(\d+)\s*$/);
+  const memFromB = String(summaryB || '').match(/^\s*(\d+)\s*$/);
+  if (cpuFromA && memFromB) {
+    return { cpu: Number(cpuFromA[1]), memory: Number(memFromB[1]) };
+  }
+
+  const resourceText = `${summaryA || ''} ${summaryB || ''}`;
+  const compact = resourceText.match(/(\d+)\s*C\s*\/\s*(\d+)\s*G/i);
+  if (compact) {
+    return { cpu: Number(compact[1]), memory: Number(compact[2]) };
+  }
+
+  const cpu = resourceText.match(/CPU[:=]?\s*(\d+)/i);
+  const memory = resourceText.match(/内存[:=]?\s*(\d+)\s*G?B?/i);
+  return {
+    cpu: cpu ? Number(cpu[1]) : 4,
+    memory: memory ? Number(memory[1]) : 8,
   };
 }
 
@@ -103,15 +131,25 @@ const DeliveryPolicyCenter: React.FC = () => {
     if (activeCategory === '加密策略') {
       form.setFieldsValue({
         encryptionMethod: 'AES-256 整体加密',
+        encryptionType: '结构化数据',
         status: true,
       });
     } else if (activeCategory === '传输服务管控') {
       form.setFieldsValue({
-        transferMemory: defaultTransportConfig.transferMemory,
-        transferBandwidth: defaultTransportConfig.transferBandwidth,
+        summaryA: '中',
         retryCount: defaultTransportConfig.retryCount,
-        retryTimeoutSec: defaultTransportConfig.retryTimeoutSec,
-        monitorAlertEnabled: defaultTransportConfig.monitorAlertEnabled,
+      });
+    } else if (activeCategory === '策略网关') {
+      form.setFieldsValue({
+        appKey: generateAppKey(),
+      });
+    } else if (activeCategory === '容器隔离控制') {
+      form.setFieldsValue({
+        summaryA: '单任务隔离',
+      });
+    } else if (activeCategory === '数据销毁策略') {
+      form.setFieldsValue({
+        destroyMode: '自动销毁',
       });
     }
     setModalVisible(true);
@@ -125,6 +163,7 @@ const DeliveryPolicyCenter: React.FC = () => {
         name: record.name,
         description: record.description,
         encryptionMethod: record.summaryA,
+        encryptionType: record.summaryB || '结构化数据',
         status: record.status === '启用',
       });
     } else if (activeCategory === '传输服务管控') {
@@ -133,11 +172,29 @@ const DeliveryPolicyCenter: React.FC = () => {
         name: record.name,
         description: record.description,
         summaryA: record.summaryA,
-        transferMemory: parsed.transferMemory,
-        transferBandwidth: parsed.transferBandwidth,
         retryCount: parsed.retryCount,
-        retryTimeoutSec: parsed.retryTimeoutSec,
-        monitorAlertEnabled: parsed.monitorAlertEnabled,
+      });
+    } else if (activeCategory === '可信环境构建') {
+      const parsed = parseTrustedEnvResources(record.summaryA, record.summaryB);
+      form.setFieldsValue({
+        name: record.name,
+        cpu: parsed.cpu,
+        memory: parsed.memory,
+        description: record.description,
+      });
+    } else if (activeCategory === '数据销毁策略') {
+      form.setFieldsValue({
+        name: record.name,
+        destroyMode: record.summaryA || '自动销毁',
+        destroyTime: record.summaryA === '自动销毁' ? record.summaryB : undefined,
+        description: record.description,
+      });
+    } else if (activeCategory === '策略网关') {
+      form.setFieldsValue({
+        name: record.name,
+        description: record.description,
+        appKey: record.summaryA,
+        gatewayParams: record.summaryB,
       });
     } else {
       form.setFieldsValue({
@@ -163,6 +220,7 @@ const DeliveryPolicyCenter: React.FC = () => {
         const name = String(values.name || '').trim();
         const status = values.status ? '启用' : '禁用';
         const encryptionMethod = String(values.encryptionMethod || '');
+        const encryptionType = String(values.encryptionType || '结构化数据');
 
         const conflict = templates.some(
           (t) => t.category === '加密策略' && t.name.trim() === name && t.key !== editingRecord?.key,
@@ -180,9 +238,12 @@ const DeliveryPolicyCenter: React.FC = () => {
             name,
             status,
             orderRefCount: 0,
+            createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
+            createdBy: '当前用户',
             updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+            updatedBy: '当前用户',
             summaryA: encryptionMethod,
-            summaryB: '',
+            summaryB: encryptionType,
             description: values.description || '',
           };
           setTemplates((prev) => [newItem, ...prev]);
@@ -200,9 +261,10 @@ const DeliveryPolicyCenter: React.FC = () => {
                     name,
                     status,
                     summaryA: encryptionMethod,
-                    summaryB: '',
+                    summaryB: encryptionType,
                     description: values.description || '',
                     updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+                    updatedBy: '当前用户',
                   }
                 : item,
             ),
@@ -213,17 +275,158 @@ const DeliveryPolicyCenter: React.FC = () => {
         }
       }
 
+      if (activeCategory === '策略网关') {
+        const name = String(values.name || '').trim();
+        const appKey = modalType === 'edit' && editingRecord ? editingRecord.summaryA : String(values.appKey || '').trim();
+        const gatewayParams = String(values.gatewayParams || '').trim();
+        if (modalType === 'add') {
+          const newItem: PolicyTemplate = {
+            key: `${activeCategory}_${Date.now()}`,
+            category: activeCategory,
+            name,
+            status: '启用',
+            orderRefCount: 0,
+            createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
+            createdBy: '当前用户',
+            updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+            updatedBy: '当前用户',
+            summaryA: appKey || generateAppKey(),
+            summaryB: gatewayParams,
+            description: values.description || '',
+          };
+          setTemplates((prev) => [newItem, ...prev]);
+          message.success('策略模板创建成功');
+          setModalVisible(false);
+          return;
+        }
+        if (editingRecord) {
+          setTemplates((prev) =>
+            prev.map((item) =>
+              item.key === editingRecord.key
+                ? {
+                    ...item,
+                    name,
+                    summaryA: editingRecord.summaryA,
+                    summaryB: gatewayParams,
+                    description: values.description || '',
+                    updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+                    updatedBy: '当前用户',
+                  }
+                : item,
+            ),
+          );
+          message.success('策略模板更新成功');
+          setModalVisible(false);
+          return;
+        }
+      }
+
+      if (activeCategory === '可信环境构建') {
+        const name = String(values.name || '').trim();
+        const cpu = Number(values.cpu);
+        const memory = Number(values.memory);
+        if (modalType === 'add') {
+          const newItem: PolicyTemplate = {
+            key: `${activeCategory}_${Date.now()}`,
+            category: activeCategory,
+            name,
+            status: '启用',
+            orderRefCount: 0,
+            createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
+            createdBy: '当前用户',
+            updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+            updatedBy: '当前用户',
+            summaryA: String(cpu),
+            summaryB: String(memory),
+            description: values.description || '',
+          };
+          setTemplates((prev) => [newItem, ...prev]);
+          message.success('策略模板创建成功');
+          setModalVisible(false);
+          return;
+        }
+        if (editingRecord) {
+          setTemplates((prev) =>
+            prev.map((item) =>
+              item.key === editingRecord.key
+                ? {
+                    ...item,
+                    name,
+                    summaryA: String(cpu),
+                    summaryB: String(memory),
+                    description: values.description || '',
+                    updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+                    updatedBy: '当前用户',
+                  }
+                : item,
+            ),
+          );
+          message.success('策略模板更新成功');
+          setModalVisible(false);
+          return;
+        }
+      }
+
+      if (activeCategory === '数据销毁策略') {
+        const name = String(values.name || '').trim();
+        const destroyMode = String(values.destroyMode || '自动销毁');
+        const destroyTime = destroyMode === '自动销毁' ? String(values.destroyTime || '').trim() : '';
+        if (modalType === 'add') {
+          const newItem: PolicyTemplate = {
+            key: `${activeCategory}_${Date.now()}`,
+            category: activeCategory,
+            name,
+            status: '启用',
+            orderRefCount: 0,
+            createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
+            createdBy: '当前用户',
+            updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+            updatedBy: '当前用户',
+            summaryA: destroyMode,
+            summaryB: destroyTime,
+            description: values.description || '',
+          };
+          setTemplates((prev) => [newItem, ...prev]);
+          message.success('策略模板创建成功');
+          setModalVisible(false);
+          return;
+        }
+        if (editingRecord) {
+          setTemplates((prev) =>
+            prev.map((item) =>
+              item.key === editingRecord.key
+                ? {
+                    ...item,
+                    name,
+                    summaryA: destroyMode,
+                    summaryB: destroyTime,
+                    description: values.description || '',
+                    updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+                    updatedBy: '当前用户',
+                  }
+                : item,
+            ),
+          );
+          message.success('策略模板更新成功');
+          setModalVisible(false);
+          return;
+        }
+      }
+
       // Other categories keep existing behavior (no status field in their forms).
       if (modalType === 'add') {
         if (activeCategory === '传输服务管控') {
-          const configSummary = `传输内存:${Number(values.transferMemory)}GB; 传输带宽:${Number(values.transferBandwidth)}Mbps; 重试次数:${Number(values.retryCount)}次; 超时:${Number(values.retryTimeoutSec)}秒; 监控告警:${values.monitorAlertEnabled ? '开启' : '关闭'}`;
+          const configSummary = `重试次数:${Number(values.retryCount)}次`;
           const newItem: PolicyTemplate = {
             key: `${activeCategory}_${Date.now()}`,
             category: activeCategory,
             name: values.name,
             status: '启用',
             orderRefCount: 0,
+            createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
+            createdBy: '当前用户',
             updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+            updatedBy: '当前用户',
             summaryA: values.summaryA,
             summaryB: configSummary,
             description: values.description || '',
@@ -240,7 +443,10 @@ const DeliveryPolicyCenter: React.FC = () => {
           name: values.name,
           status: '启用',
           orderRefCount: 0,
+          createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
+          createdBy: '当前用户',
           updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+          updatedBy: '当前用户',
           summaryA: values.summaryA,
           summaryB: values.summaryB,
           description: values.description || '',
@@ -250,7 +456,7 @@ const DeliveryPolicyCenter: React.FC = () => {
         setModalVisible(false);
       } else if (editingRecord) {
         if (activeCategory === '传输服务管控') {
-          const configSummary = `传输内存:${Number(values.transferMemory)}GB; 传输带宽:${Number(values.transferBandwidth)}Mbps; 重试次数:${Number(values.retryCount)}次; 超时:${Number(values.retryTimeoutSec)}秒; 监控告警:${values.monitorAlertEnabled ? '开启' : '关闭'}`;
+          const configSummary = `重试次数:${Number(values.retryCount)}次`;
           setTemplates((prev) =>
             prev.map((item) =>
               item.key === editingRecord.key
@@ -260,6 +466,7 @@ const DeliveryPolicyCenter: React.FC = () => {
                     summaryA: values.summaryA,
                     summaryB: configSummary,
                     updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+                    updatedBy: '当前用户',
                   }
                 : item,
             ),
@@ -272,7 +479,7 @@ const DeliveryPolicyCenter: React.FC = () => {
         setTemplates((prev) =>
           prev.map((item) =>
             item.key === editingRecord.key
-              ? { ...item, ...values, updatedAt: dayjs().format('YYYY-MM-DD HH:mm') }
+              ? { ...item, ...values, updatedAt: dayjs().format('YYYY-MM-DD HH:mm'), updatedBy: '当前用户' }
               : item,
           ),
         );
@@ -317,6 +524,7 @@ const DeliveryPolicyCenter: React.FC = () => {
     if (activeCategory === '加密策略') {
       return [
         { title: '策略名称', dataIndex: 'name' },
+        { title: '加密类型', dataIndex: 'summaryB' },
         { title: '加密/处理方法', dataIndex: 'summaryA' },
         { title: '状态', dataIndex: 'status', render: (v: string) => <Tag color={v === '启用' ? 'green' : 'default'}>{v}</Tag> },
         { title: '操作', render: (_, row) => renderActions(row) },
@@ -325,17 +533,50 @@ const DeliveryPolicyCenter: React.FC = () => {
     if (activeCategory === '传输服务管控') {
       return [
         { title: '策略名称', dataIndex: 'name' },
-        { title: '调度类型', dataIndex: 'summaryA' },
-        { title: '传输配置', dataIndex: 'summaryB' },
+        {
+          title: '重试次数',
+          dataIndex: 'summaryB',
+          render: (v: string) => parseTransportConfig(v).retryCount,
+        },
+        {
+          title: '传输优先级',
+          dataIndex: 'summaryA',
+          render: (v: string) => getTransportPriority(v),
+        },
         { title: '状态', dataIndex: 'status', render: (v: string) => <Tag color={v === '启用' ? 'green' : 'default'}>{v}</Tag> },
         { title: '操作', render: (_, row) => renderActions(row) },
       ];
     }
     if (activeCategory === '策略网关') {
       return [
-        { title: '网关名称', dataIndex: 'name' },
-        { title: '传输类型', dataIndex: 'summaryA' },
-        { title: '关联策略', dataIndex: 'summaryB' },
+        { title: '策略名称', dataIndex: 'name' },
+        { title: 'appkey', dataIndex: 'summaryA' },
+        { title: '网关参数', dataIndex: 'summaryB' },
+        { title: '状态', dataIndex: 'status', render: (v: string) => <Tag color={v === '启用' ? 'green' : 'default'}>{v}</Tag> },
+        { title: '操作', render: (_, row) => renderActions(row) },
+      ];
+    }
+    if (activeCategory === '容器隔离控制') {
+      return [
+        { title: '隔离策略名称', dataIndex: 'name' },
+        { title: '隔离方式', dataIndex: 'summaryA' },
+        { title: '状态', dataIndex: 'status', render: (v: string) => <Tag color={v === '启用' ? 'green' : 'default'}>{v}</Tag> },
+        { title: '操作', render: (_, row) => renderActions(row) },
+      ];
+    }
+    if (activeCategory === '数据销毁策略') {
+      return [
+        { title: '策略名称', dataIndex: 'name' },
+        { title: '销毁方式', dataIndex: 'summaryA' },
+        { title: '状态', dataIndex: 'status', render: (v: string) => <Tag color={v === '启用' ? 'green' : 'default'}>{v}</Tag> },
+        { title: '操作', render: (_, row) => renderActions(row) },
+      ];
+    }
+    if (activeCategory === '可信环境构建') {
+      return [
+        { title: '可信环境名称', dataIndex: 'name' },
+        { title: '内存', dataIndex: 'summaryB', render: (v: string) => `${v} GB` },
+        { title: 'CPU', dataIndex: 'summaryA', render: (v: string) => `${v} 核` },
         { title: '状态', dataIndex: 'status', render: (v: string) => <Tag color={v === '启用' ? 'green' : 'default'}>{v}</Tag> },
         { title: '操作', render: (_, row) => renderActions(row) },
       ];
@@ -384,6 +625,19 @@ const DeliveryPolicyCenter: React.FC = () => {
           </Form.Item>
 
           <Form.Item
+            name="encryptionType"
+            label="加密类型"
+            rules={[{ required: true, message: '请选择加密类型' }]}
+          >
+            <Select
+              options={[
+                { label: '文件', value: '文件' },
+                { label: '结构化数据', value: '结构化数据' },
+              ]}
+            />
+          </Form.Item>
+
+          <Form.Item
             name="encryptionMethod"
             label="加密/处理方法"
             rules={[{ required: true, message: '请选择加密/处理方法' }]}
@@ -415,21 +669,7 @@ const DeliveryPolicyCenter: React.FC = () => {
       return (
         <>
           <Form.Item name="name" label="策略名称" rules={[{ required: true, message: '请输入策略名称' }]}><Input placeholder="如：夜间批处理策略" /></Form.Item>
-          <Form.Item name="summaryA" label="调度类型" rules={[{ required: true, message: '请选择调度类型' }]}><Select options={['立即执行', '定时执行', '周期执行'].map((x) => ({ label: x, value: x }))} /></Form.Item>
-          <Form.Item
-            name="transferMemory"
-            label="资源配额-传输内存（GB）"
-            rules={[{ required: true, message: '请输入传输内存' }]}
-          >
-            <InputNumber min={1} style={{ width: '100%' }} placeholder="如：8" />
-          </Form.Item>
-          <Form.Item
-            name="transferBandwidth"
-            label="资源配额-传输带宽（Mbps）"
-            rules={[{ required: true, message: '请输入传输带宽' }]}
-          >
-            <InputNumber min={1} style={{ width: '100%' }} placeholder="如：100" />
-          </Form.Item>
+          <Form.Item name="summaryA" label="传输优先级" rules={[{ required: true, message: '请选择传输优先级' }]}><Select options={['低', '中', '高'].map((x) => ({ label: x, value: x }))} /></Form.Item>
           <Form.Item
             name="retryCount"
             label="容错与重试-重试次数"
@@ -437,42 +677,30 @@ const DeliveryPolicyCenter: React.FC = () => {
           >
             <InputNumber min={0} style={{ width: '100%' }} placeholder="如：3" />
           </Form.Item>
-          <Form.Item
-            name="retryTimeoutSec"
-            label="容错与重试-超时时间（秒）"
-            rules={[{ required: true, message: '请输入超时时间（秒）' }]}
-          >
-            <InputNumber min={1} style={{ width: '100%' }} placeholder="如：30" />
-          </Form.Item>
-          <Form.Item
-            name="monitorAlertEnabled"
-            label="监控告警"
-            valuePropName="checked"
-            initialValue={true}
-          >
-            <Switch checkedChildren="开启" unCheckedChildren="关闭" />
-          </Form.Item>
         </>
       );
     }
     if (activeCategory === '策略网关') {
       return (
         <>
-          <Form.Item name="name" label="网关名称" rules={[{ required: true, message: '请输入网关名称' }]}><Input placeholder="如：用户信息SFTP安全传输网关" /></Form.Item>
-          <Form.Item name="summaryA" label="传输类型" rules={[{ required: true, message: '请选择传输类型' }]}><Select options={['SFTP', '数据库JDBC'].map((x) => ({ label: x, value: x }))} /></Form.Item>
-          <Form.Item name="summaryB" label="关联能力包" rules={[{ required: true, message: '请输入关联能力包' }]}><Input placeholder="如：SM4国密加密包 + 高优先级实时传输策略" /></Form.Item>
-          <Form.Item label="基础传输模板"><Input.TextArea rows={3} placeholder="根据传输类型配置服务器、端口、路径或连接串等信息" /></Form.Item>
-          <Form.Item name="description" label="网关描述"><Input.TextArea rows={2} placeholder="说明网关业务用途" /></Form.Item>
+          <Form.Item name="name" label="策略名称" rules={[{ required: true, message: '请输入策略名称' }]}><Input placeholder="如：用户信息安全交付策略" /></Form.Item>
+          <Form.Item name="appKey" label="appkey" rules={[{ required: true, message: '系统未生成appkey，请重试' }]}>
+            <Input disabled placeholder="系统自动生成，不可修改" />
+          </Form.Item>
+          <Form.Item name="gatewayParams" label="网关参数" rules={[{ required: true, message: '请输入网关参数' }]}>
+            <Input.TextArea rows={2} placeholder="请输入网关参数（如JSON或键值对）" />
+          </Form.Item>
+          <Form.Item name="description" label="策略描述"><Input.TextArea rows={2} placeholder="说明该低密交付策略的业务用途" /></Form.Item>
         </>
       );
     }
     if (activeCategory === '可信环境构建') {
       return (
         <>
-          <Form.Item name="name" label="模板名称" rules={[{ required: true, message: '请输入模板名称' }]}><Input placeholder="如：SGX-4C8G计算环境" /></Form.Item>
-          <Form.Item name="summaryA" label="环境类型" rules={[{ required: true, message: '请选择环境类型' }]}><Select options={['Intel SGX', 'AMD SEV', '国产TEE芯片'].map((x) => ({ label: x, value: x }))} /></Form.Item>
-          <Form.Item name="summaryB" label="资源规格" rules={[{ required: true, message: '请输入资源规格' }]}><Input placeholder="如：4C/8G" /></Form.Item>
-          <Form.Item label="基础镜像/证明要求"><Input.TextArea rows={2} placeholder="配置远程证明标准和基础镜像" /></Form.Item>
+          <Form.Item name="name" label="可信环境名称" rules={[{ required: true, message: '请输入可信环境名称' }]}><Input placeholder="如：SGX-4C8G计算环境" /></Form.Item>
+          <Form.Item name="memory" label="内存(GB)" rules={[{ required: true, message: '请输入内存' }]}><InputNumber min={1} style={{ width: '100%' }} placeholder="如：8" /></Form.Item>
+          <Form.Item name="cpu" label="CPU(核)" rules={[{ required: true, message: '请输入CPU核数' }]}><InputNumber min={1} style={{ width: '100%' }} placeholder="如：4" /></Form.Item>
+          <Form.Item name="description" label="环境说明"><Input.TextArea rows={2} placeholder="说明可信环境用途与适用场景" /></Form.Item>
         </>
       );
     }
@@ -498,19 +726,28 @@ const DeliveryPolicyCenter: React.FC = () => {
     if (activeCategory === '容器隔离控制') {
       return (
         <>
-          <Form.Item name="name" label="策略名称" rules={[{ required: true, message: '请输入策略名称' }]}><Input placeholder="如：强隔离计算容器" /></Form.Item>
-          <Form.Item name="summaryA" label="资源限额" rules={[{ required: true, message: '请输入资源限额' }]}><Input placeholder="如：8C/16G" /></Form.Item>
-          <Form.Item name="summaryB" label="网络隔离策略" rules={[{ required: true, message: '请选择网络隔离策略' }]}><Select options={['禁止所有出/入站', '允许访问特定服务'].map((x) => ({ label: x, value: x }))} /></Form.Item>
-          <Form.Item label="文件系统访问控制"><Input.TextArea rows={2} placeholder="定义容器可访问目录" /></Form.Item>
+          <Form.Item name="name" label="隔离策略名称" rules={[{ required: true, message: '请输入隔离策略名称' }]}><Input placeholder="如：强隔离计算容器" /></Form.Item>
+          <Form.Item name="summaryA" label="隔离方式" rules={[{ required: true, message: '请选择隔离方式' }]}><Select options={['单任务隔离', '并行任务'].map((x) => ({ label: x, value: x }))} /></Form.Item>
+          <Form.Item name="description" label="策略说明"><Input.TextArea rows={2} placeholder="说明该隔离策略的适用场景" /></Form.Item>
         </>
       );
     }
     return (
       <>
         <Form.Item name="name" label="策略名称" rules={[{ required: true, message: '请输入策略名称' }]}><Input placeholder="如：标准30天自动清理" /></Form.Item>
-        <Form.Item name="summaryA" label="触发条件" rules={[{ required: true, message: '请选择触发条件' }]}><Select options={['时间触发', '任务成功触发', '手动触发'].map((x) => ({ label: x, value: x }))} /></Form.Item>
-        <Form.Item name="summaryB" label="销毁算法" rules={[{ required: true, message: '请选择销毁算法' }]}><Select options={['安全删除1次覆写', '高强度擦除3次覆写'].map((x) => ({ label: x, value: x }))} /></Form.Item>
-        <Form.Item label="留存周期"><Input placeholder="如：30天（时间触发时填写）" /></Form.Item>
+        <Form.Item name="destroyMode" label="销毁方式" rules={[{ required: true, message: '请选择销毁方式' }]}>
+          <Select options={['自动销毁', '手动销毁'].map((x) => ({ label: x, value: x }))} />
+        </Form.Item>
+        <Form.Item shouldUpdate={(prev, cur) => prev.destroyMode !== cur.destroyMode} noStyle>
+          {({ getFieldValue }) => (
+            getFieldValue('destroyMode') === '自动销毁' ? (
+              <Form.Item name="destroyTime" label="销毁时间（选填）">
+                <Input placeholder="如：30天后 / 2026-05-01 00:00" />
+              </Form.Item>
+            ) : null
+          )}
+        </Form.Item>
+        <Form.Item name="description" label="策略说明"><Input.TextArea rows={2} placeholder="说明销毁策略适用场景" /></Form.Item>
       </>
     );
   };
@@ -612,10 +849,46 @@ const DeliveryPolicyCenter: React.FC = () => {
         {detailRecord && (
           <div className="space-y-4">
             <Descriptions bordered size="small" column={1}>
-              <Descriptions.Item label="模板分类">{detailRecord.category}</Descriptions.Item>
-              <Descriptions.Item label="模板名称">{detailRecord.name}</Descriptions.Item>
+              {detailRecord.category !== '传输服务管控' && (
+                <Descriptions.Item label="模板分类">{detailRecord.category}</Descriptions.Item>
+              )}
+              {detailRecord.category !== '可信环境构建' && (
+                <Descriptions.Item label="模板名称">{detailRecord.name}</Descriptions.Item>
+              )}
               {detailRecord.category === '加密策略' ? (
-                <Descriptions.Item label="加密/处理方法">{detailRecord.summaryA}</Descriptions.Item>
+                <>
+                  <Descriptions.Item label="加密类型">{detailRecord.summaryB || '-'}</Descriptions.Item>
+                  <Descriptions.Item label="加密/处理方法">{detailRecord.summaryA}</Descriptions.Item>
+                </>
+              ) : detailRecord.category === '传输服务管控' ? (
+                <>
+                  <Descriptions.Item label="传输优先级">{getTransportPriority(detailRecord.summaryA)}</Descriptions.Item>
+                  <Descriptions.Item label="重试次数">{parseTransportConfig(detailRecord.summaryB).retryCount}次</Descriptions.Item>
+                </>
+              ) : detailRecord.category === '策略网关' ? (
+                <>
+                  <Descriptions.Item label="appkey">{detailRecord.summaryA || '-'}</Descriptions.Item>
+                  <Descriptions.Item label="网关参数">{detailRecord.summaryB || '-'}</Descriptions.Item>
+                </>
+              ) : detailRecord.category === '可信环境构建' ? (
+                <>
+                  <Descriptions.Item label="可信环境名称">{detailRecord.name}</Descriptions.Item>
+                  <Descriptions.Item label="内存">{detailRecord.summaryB ? `${detailRecord.summaryB} GB` : '-'}</Descriptions.Item>
+                  <Descriptions.Item label="CPU">{detailRecord.summaryA ? `${detailRecord.summaryA} 核` : '-'}</Descriptions.Item>
+                </>
+              ) : detailRecord.category === '容器隔离控制' ? (
+                <>
+                  <Descriptions.Item label="隔离策略名称">{detailRecord.name}</Descriptions.Item>
+                  <Descriptions.Item label="隔离方式">{detailRecord.summaryA || '-'}</Descriptions.Item>
+                </>
+              ) : detailRecord.category === '数据销毁策略' ? (
+                <>
+                  <Descriptions.Item label="策略名称">{detailRecord.name}</Descriptions.Item>
+                  <Descriptions.Item label="销毁方式">{detailRecord.summaryA || '-'}</Descriptions.Item>
+                  {detailRecord.summaryA === '自动销毁' && (
+                    <Descriptions.Item label="销毁时间">{detailRecord.summaryB || '-'}</Descriptions.Item>
+                  )}
+                </>
               ) : (
                 <>
                   <Descriptions.Item label="关键参数1">{detailRecord.summaryA}</Descriptions.Item>
@@ -626,7 +899,10 @@ const DeliveryPolicyCenter: React.FC = () => {
                 <Tag color={detailRecord.status === '启用' ? 'green' : 'default'}>{detailRecord.status}</Tag>
               </Descriptions.Item>
               <Descriptions.Item label="引用订单">{detailRecord.orderRefCount}</Descriptions.Item>
+              <Descriptions.Item label="创建时间">{detailRecord.createdAt || '-'}</Descriptions.Item>
+              <Descriptions.Item label="创建人">{detailRecord.createdBy || '-'}</Descriptions.Item>
               <Descriptions.Item label="更新时间">{detailRecord.updatedAt}</Descriptions.Item>
+              <Descriptions.Item label="更新人">{detailRecord.updatedBy || '-'}</Descriptions.Item>
               <Descriptions.Item label="描述">{detailRecord.description || '-'}</Descriptions.Item>
             </Descriptions>
             <Card size="small" title="能力与业务装配关系">

@@ -25,7 +25,7 @@ interface ContentPublishingTask {
   associatedDataProducts?: string[]; // Optional, only for '数据产品目录'
   content: string; // Rich text, using string for now
   description: string;
-  status: '待审核' | '已通过' | '已驳回' | '已撤回';
+  status: '待审核' | '待发布' | '已发布' | '已驳回';
   lastUpdate: string;
 }
 
@@ -68,7 +68,7 @@ const OperationCenter: React.FC = () => {
       contentType: '空间信息摘要',
       content: '本报告详细分析了用户在过去一个月的行为模式和偏好...',
       description: '向运营团队发布的用户行为分析报告',
-      status: '已通过',
+      status: '已发布',
       lastUpdate: '2024-04-10 11:30:00',
     },
     {
@@ -78,7 +78,7 @@ const OperationCenter: React.FC = () => {
       associatedDataProducts: ['product_api_v2', 'user_profile_v3'],
       content: '新产品上线所需的数据接口清单及详细说明。',
       description: '为新产品提供数据支持',
-      status: '待审核',
+      status: '待发布',
       lastUpdate: '2024-04-09 16:00:00',
     },
     {
@@ -89,6 +89,15 @@ const OperationCenter: React.FC = () => {
       description: '面向管理层的季度财务分析',
       status: '已驳回',
       lastUpdate: '2024-04-08 10:00:00',
+    },
+    {
+      key: 'cp_4',
+      title: '公共服务开放公告',
+      contentType: '其他',
+      content: '计划于下周上线公共服务能力，当前内容正在审核中。',
+      description: '面向空间成员发布的服务公告',
+      status: '待审核',
+      lastUpdate: '2024-04-11 09:20:00',
     },
   ]);
   const [contentPublishingLoading] = useState(false);
@@ -210,13 +219,6 @@ const OperationCenter: React.FC = () => {
     setContentPublishingModalVisible(true);
   };
 
-  const handleEditPublishingTask = (record: ContentPublishingTask) => {
-    setContentPublishingModalType('edit');
-    setEditingPublishingTask(record);
-    publishingForm.setFieldsValue(record);
-    setContentPublishingModalVisible(true);
-  };
-
   const showContentPublishingDetail = (record: ContentPublishingTask) => {
     setEditingPublishingTask(record);
     setContentPublishingDetailVisible(true);
@@ -245,41 +247,19 @@ const OperationCenter: React.FC = () => {
     });
   };
 
-  const handleContentPublishingStatusChange = (record: ContentPublishingTask, newStatus: '已通过' | '已驳回' | '已撤回') => {
-    let title = '';
-    let content = '';
-    let okText = '';
-    let okType: 'danger' | 'primary' = 'primary';
-
-    if (newStatus === '已通过') {
-      title = '确认通过';
-      content = `确定要通过发布任务“${record.title}”吗？通过后将正式发布。`;
-      okText = '确认通过';
-    } else if (newStatus === '已驳回') {
-      title = '确认驳回';
-      content = `确定要驳回发布任务“${record.title}”吗？驳回后任务将回到草稿状态。`;
-      okText = '确认驳回';
-      okType = 'danger';
-    } else if (newStatus === '已撤回') {
-      title = '确认撤回';
-      content = `确定要撤回发布任务“${record.title}”吗？撤回后任务将不再可见。`;
-      okText = '确认撤回';
-      okType = 'danger';
-    }
-
+  const handlePublishTask = (record: ContentPublishingTask) => {
     Modal.confirm({
-      title: title,
-      icon: <AlertCircle className={okType === 'danger' ? "text-red-500" : "text-blue-500"} />,
-      content: content,
-      okText: okText,
-      okType: okType,
+      title: '确认发布',
+      icon: <AlertCircle className="text-blue-500" />,
+      content: `确定要发布任务“${record.title}”吗？发布后状态将变更为“已发布”。`,
+      okText: '确认发布',
       cancelText: '取消',
       onOk: () => {
-        message.loading(`正在${okText.replace('确认', '')}...`, 0.5).then(() => {
-          setContentPublishingTasks(prev => prev.map(item => 
-            item.key === record.key ? { ...item, status: newStatus, lastUpdate: new Date().toLocaleString() } : item
+        message.loading('正在发布...', 0.5).then(() => {
+          setContentPublishingTasks(prev => prev.map(item =>
+            item.key === record.key ? { ...item, status: '已发布', lastUpdate: new Date().toLocaleString() } : item
           ));
-          message.success(`${okText.replace('确认', '')}成功`);
+          message.success('发布成功');
         });
       }
     });
@@ -598,10 +578,10 @@ const OperationCenter: React.FC = () => {
                 key: 'status',
                 render: (status: ContentPublishingTask['status']) => {
                   let statusColor: 'default' | 'success' | 'error' | 'warning' | 'processing' = 'default';
-                  if (status === '已通过') statusColor = 'success';
+                  if (status === '已发布') statusColor = 'success';
                   if (status === '待审核') statusColor = 'processing';
+                  if (status === '待发布') statusColor = 'warning';
                   if (status === '已驳回') statusColor = 'error';
-                  if (status === '已撤回') statusColor = 'warning';
                   return <Badge status={statusColor} text={status} />;
                 }
               },
@@ -610,21 +590,10 @@ const OperationCenter: React.FC = () => {
                 title: '操作', key: 'action', width: 220,
                 render: (_: any, record: ContentPublishingTask) => (
                   <Space size="middle">
-                    {(record.status === '待审核' || record.status === '已驳回') && (
-                      <Button type="link" size="small" icon={<Edit size={14} />} onClick={() => handleEditPublishingTask(record)}>
-                        编辑
-                      </Button>
+                    {record.status === '待发布' && (
+                      <Button type="link" size="small" onClick={() => handlePublishTask(record)}>发布</Button>
                     )}
                     <Button type="link" size="small" icon={<Info size={14} />} onClick={() => showContentPublishingDetail(record)}>详情</Button>
-                    {record.status === '待审核' && (
-                      <>
-                        <Button type="link" size="small" onClick={() => handleContentPublishingStatusChange(record, '已通过')}>通过</Button>
-                        <Button type="link" size="small" danger onClick={() => handleContentPublishingStatusChange(record, '已驳回')}>驳回</Button>
-                      </>
-                    )}
-                    {(record.status === '已通过' || record.status === '已驳回') && (
-                      <Button type="link" size="small" danger onClick={() => handleContentPublishingStatusChange(record, '已撤回')}>撤回</Button>
-                    )}
                   </Space>
                 ),
               },
@@ -1078,9 +1047,9 @@ const OperationCenter: React.FC = () => {
               <Descriptions.Item label="状态">
                 <Badge 
                   status={
-                    editingPublishingTask.status === '已通过' ? 'success' :
+                    editingPublishingTask.status === '已发布' ? 'success' :
                     editingPublishingTask.status === '待审核' ? 'processing' :
-                    editingPublishingTask.status === '已驳回' ? 'error' : 'warning'
+                    editingPublishingTask.status === '待发布' ? 'warning' : 'error'
                   } 
                   text={editingPublishingTask.status} 
                 />

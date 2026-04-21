@@ -112,14 +112,13 @@ const DeliveryOrderDetail: React.FC = () => {
                           pagination={false}
                           rowKey="ability"
                           dataSource={[
-                            { ability: '加密策略: 手机号AES加密', field: 'phone', params: 'algorithm=AES-256' },
-                            { ability: '预处理规则: 日期标准化规则', field: 'pay_time', params: 'format=YYYY-MM-DD' },
-                            { ability: '质量规则: 字段非空率检查', field: 'phone', params: 'threshold=98' },
+                            { ability: '加密策略: 手机号AES加密', field: 'phone' },
+                            { ability: '预处理规则: 日期标准化规则', field: 'pay_time' },
+                            { ability: '质量规则: 字段非空率检查', field: 'phone' },
                           ]}
                           columns={[
                             { title: '策略能力', dataIndex: 'ability' },
                             { title: '绑定字段', dataIndex: 'field' },
-                            { title: '参数赋值', dataIndex: 'params' },
                           ]}
                         />
                       </div>
