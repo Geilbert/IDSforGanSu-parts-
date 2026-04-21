@@ -28,3 +28,9 @@
     "tailwindcss": "^4.2.2"
   }
 }
+
+{
+  "scripts": {
+    "build": "chmod +x ./node_modules/.bin/tsc && tsc && vite build"
+  }
+}
